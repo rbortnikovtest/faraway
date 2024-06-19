@@ -1,0 +1,27 @@
+services:
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      HOST: 0.0.0.0
+      PORT: 8181
+    ports:
+      - "8181:8181"
+    command: /server
+    healthcheck:
+      test: [ "CMD-SHELL", "netstat -an | grep 8181 | grep -i listen" ]
+      interval: 1s
+      retries: 5
+
+  client:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      SERVER_HOST: server
+      SERVER_PORT: 8181
+    command: /client
+    depends_on:
+      server:
+        condition: service_healthy
